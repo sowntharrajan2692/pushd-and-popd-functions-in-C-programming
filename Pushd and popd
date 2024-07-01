@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+
+#define MAX_STACK_SIZE 100
+#define MAX_PATH_LENGTH 256
+char directory_stack[MAX_STACK_SIZE][MAX_PATH_LENGTH];
+int stack_pointer = 0;
+void pushd(const char *directory);
+void popd();
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <pushd/popd directory>\n", argv[0]);
+        return 1;
+    }
+    if (strcmp(argv[1], "pushd") == 0 && argc >= 3) {
+        pushd(argv[2]);
+    } else if (strcmp(argv[1], "popd") == 0) {
+        popd();
+    } else {
+        fprintf(stderr, "Invalid command or missing directory argument.\n");
+        fprintf(stderr, "Usage: %s <pushd/popd directory>\n", argv[0]);
+        return 1;
+    }
+    return 0;
+}
+void pushd(const char *directory) {
+    if (stack_pointer >= MAX_STACK_SIZE) {
+        fprintf(stderr, "Directory stack overflow!\n");
+        return;
+    }
+    if (getcwd(directory_stack[stack_pointer], MAX_PATH_LENGTH) == NULL) {
+        perror("getcwd");
+        return;
+    }
+    if (chdir(directory) != 0) {
+        perror("chdir");
+        return;
+    }
+    printf("Pushed %s to directory stack\n", directory_stack[stack_pointer]);
+    stack_pointer++;
+}
+void popd() {
+    if (stack_pointer <= 0) {
+        fprintf(stderr, "Directory stack underflow!\n");
+        return;
+    }
+    if (chdir(directory_stack[stack_pointer - 1]) != 0) {
+        perror("chdir");
+        return;
+    }
+    printf("Popped %s from directory stack\n", directory_stack[stack_pointer - 1]);
+    stack_pointer--;
+}
