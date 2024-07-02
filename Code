@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_STACK_SIZE 100
+
+struct DirectoryStack {
+    char stack[MAX_STACK_SIZE][256];  // Assuming maximum directory path length of 255 characters
+    int top;
+};
+
+void initStack(struct DirectoryStack *stack) {
+    stack->top = -1;
+}
+
+void pushd(struct DirectoryStack *stack, const char *directory) {
+    if (stack->top == MAX_STACK_SIZE - 1) {
+        printf("Stack overflow\n");
+        return;
+    }
+
+    stack->top++;
+    strcpy(stack->stack[stack->top], directory);
+    printf("Pushed \"%s\" onto the stack.\n", directory);
+}
+
+void popd(struct DirectoryStack *stack) {
+    if (stack->top == -1) {
+        printf("Stack is empty.\n");
+        return;
+    }
+
+    printf("Popped \"%s\" from the stack.\n", stack->stack[stack->top]);
+    stack->top--;
+}
+
+void printStack(struct DirectoryStack *stack) {
+    printf("Current stack:\n");
+    for (int i = stack->top; i >= 0; i--) {
+        printf("%s\n", stack->stack[i]);
+    }
+}
+
+int main() {
+    struct DirectoryStack stack;
+    initStack(&stack);
+    
+    while (1) {
+        printf("\nOptions:\n");
+        printf("1. pushd <directory>\n");
+        printf("2. popd\n");
+        printf("3. Print stack\n");
+        printf("4. Exit\n");
+
+        int choice;
+        char directory[256];  // Assuming maximum directory path length of 255 characters
+
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();  // Consume newline character left in input buffer
+
+        switch (choice) {
+            case 1:
+                printf("Enter directory to push: ");
+                fgets(directory, sizeof(directory), stdin);
+                directory[strcspn(directory, "\n")] = '\0';  // Remove trailing newline
+                pushd(&stack, directory);
+                break;
+            case 2:
+                popd(&stack);
+                break;
+            case 3:
+                printStack(&stack);
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                exit(0);
+            default:
+                printf("Invalid choice. Please try again.\n");
+                break;
+        }
+    }
+
+    return 0;
+}
